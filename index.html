@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>보이는 대로 말해요 · 프롬프트 놀이</title>
+<style>
+:root{--bg:#f4f1fb;--card:#fff;--tx:#1b1840;--mu:#645f86;--pr:#3b2fd1;--hi:#ffe14d;--ok:#12803c;--no:#c62828;--bd:#ddd8f0;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12102b;--card:#1d1a42;--tx:#f0eeff;--mu:#a9a4d3;--pr:#8f86ff;--ok:#4ade80;--no:#ff7b7b;--bd:#37336a}}
+:root[data-theme="dark"]{--bg:#12102b;--card:#1d1a42;--tx:#f0eeff;--mu:#a9a4d3;--pr:#8f86ff;--ok:#4ade80;--no:#ff7b7b;--bd:#37336a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',system-ui,sans-serif;line-height:1.6}
+.w{max-width:680px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,0.03)}
+h1{font-size:1.75rem;line-height:1.3;margin:0 0 10px}
+h1 mark{background:var(--hi);color:#1b1840;padding:2px 8px;border-radius:6px}
+p{margin:8px 0}.mu{color:var(--mu);font-size:.95rem}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;font-size:1.05rem}
+.sw{font-variant-numeric:tabular-nums;font-size:1.45rem;color:var(--pr)}
+.img{border-radius:12px;overflow:hidden;border:2px solid var(--bd)}
+svg{display:block;width:100%;height:auto}
+textarea{width:100%;min-height:105px;margin-top:12px;padding:14px;border-radius:12px;border:2px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:1.05rem;resize:vertical}
+textarea:focus-visible,button:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+button{font:inherit;font-weight:700;font-size:1.05rem;border:0;border-radius:12px;padding:13px 22px;background:var(--pr);color:#fff;cursor:pointer;transition:transform .1s}
+button:active{transform:scale(0.98)}
+button.s{background:var(--bd);color:var(--tx)}
+button:disabled{opacity:.5;cursor:default;transform:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+.chip{padding:5px 13px;border-radius:99px;border:1.5px solid var(--bd);font-size:.9rem;font-weight:600;color:var(--mu);background:var(--bg)}
+.chip.y{background:var(--ok);color:#fff;border-color:var(--ok)}
+.chip.n{border-color:var(--no);color:var(--no);background:rgba(198,40,40,0.06)}
+.bar{height:16px;background:var(--bd);border-radius:99px;position:relative;margin:16px 0 8px;overflow:visible}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:var(--pr);transition:width .5s}
+.bar b{position:absolute;top:-5px;bottom:-5px;width:4px;background:var(--tx);border-radius:2px}
+.msg{font-weight:700;font-size:1.02rem;margin-top:8px}.msg.y{color:var(--ok)}.msg.n{color:var(--no)}
+.sc{overflow-x:auto;margin:14px 0}
+table{width:100%;border-collapse:collapse;font-size:.95rem}td,th{padding:8px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap}
+.big{font-size:2.8rem;font-weight:800;color:var(--pr);font-variant-numeric:tabular-nums;margin:4px 0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="w">
+
+<!-- 시작 화면 -->
+<div id="s0" class="card">
+  <h1>보이는 대로 <mark>말해요</mark></h1>
+  <p>AI(인공지능)에게 그림을 그려달라고 부탁해 볼까요? 그림 속 모습을 보고 <b>자세하고 친절한 문장</b>으로 설명해 주세요!</p>
+  <p class="mu">💡 <b>꿀팁:</b> 누가 나오는지, 무슨 색인지, 어디에 있는지, 낮인지 밤인지 적어주면 점수가 쑥쑥 올라가요.</p>
+  <div class="sc"><table>
+    <tr><th>단계</th><th>1~2단계</th><th>3~4단계</th><th>5단계 (마지막)</th></tr>
+    <tr><td>통과 점수</td><td>60% 이상</td><td>70% 이상</td><td>75% 이상</td></tr>
+  </table></div>
+  <p class="mu">아래에 나오는 <b>힌트 조각</b>들을 문장 속에 꼭 넣어서 5단계까지 도전해 보세요!</p>
+  <div class="row"><button id="b0">게임 시작하기 🚀</button></div>
+</div>
+
+<!-- 게임 진행 화면 -->
+<div id="s1" hidden>
+  <div class="card top">
+    <span id="lv"></span>
+    <span class="sw" id="sw">00:00</span>
+    <span>목표 <span id="need"></span></span>
+  </div>
+  <div class="card">
+    <div class="img" id="img"></div>
+    <p class="mu" style="margin-top:12px">🔍 그림을 보고 아래 내용이 들어가게 문장을 만들어 보세요:</p>
+    <div class="chips" id="chips"></div>
+    <textarea id="in" placeholder="예) 파란 하늘 아래 초록색 잔디밭 위에 빨간 지붕 집이 있어요." aria-label="프롬프트 입력"></textarea>
+    <div class="row">
+      <button id="go">채점하기 ✨</button>
+      <button id="nx" hidden>다음 단계로 👉</button>
+    </div>
+    <div class="bar" id="bar" hidden><i id="fill"></i><b id="mark"></b></div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- 결과 화면 -->
+<div id="s2" class="card" hidden>
+  <h1>🎉 5단계 모두 완료!</h1>
+  <p class="mu">총 걸린 시간</p>
+  <div class="big" id="tot"></div>
+  <p id="sum" style="font-weight:700;font-size:1.1rem"></p>
+  <div class="sc"><table id="tb"></table></div>
+  <div class="row"><button id="re">처음부터 다시 하기 🔄</button></div>
+</div>
+
+</div>
+<script>
+const $=id=>document.getElementById(id);
+// SVG 도형 그리기 도우미 함수들
+const c=(x,y,r,f)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"/>`;
+const r=(x,y,w,h,f,q=0)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${q}" fill="${f}"/>`;
+const e=(x,y,a,b,f)=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${f}"/>`;
+const p=(t,f)=>`<polygon points="${t}" fill="${f}"/>`;
+const d=(t,f,s='none',w=0)=>`<path d="${t}" fill="${f}" stroke="${s}" stroke-width="${w}" stroke-linecap="round"/>`;
+const stars=(n,m)=>[...Array(n)].map((_,i)=>c((i*97+31)%400,(i*53+17)%m,i%3?1.2:2,'#fff')).join('');
+const dots=(n,m)=>[...Array(n)].map((_,i)=>c((i*83+20)%400,(i*47+11)%m,2.5,'#fff')).join('');
+const pine=(x,y)=>r(x-3,y,6,18,'#5d4037')+p(`${x-24},${y+6} ${x},${y-34} ${x+24},${y+6}`,'#2d6a4f')+p(`${x-20},${y-14} ${x},${y-50} ${x+20},${y-14}`,'#40916c');
+
+// 단어 매칭 도우미 (조사가 붙어도 인식)
+const W=w=>new RegExp('(^|[\\s,.])'+w+'(이|가|은|는|을|를|과|와|도|에|의|으로|로|랑|이랑|\\s|$|[,.])');
+
+// 초등학생 눈높이에 맞춘 5단계 문제 데이터
+const L=[
+  // 1단계: 접시 위의 빨간 사과 (요소 4개, 통과 60% -> 3개 이상 맞추면 통과)
+  {
+    need:60,
+    svg:()=>r(0,0,400,260,'#efe2c8')+r(0,170,400,90,'#a8743f')+e(200,200,115,26,'#fff')+e(200,192,75,14,'#e6e6e6')+c(200,140,46,'#d62828')+c(186,125,8,'#ef6a5a')+r(197,84,6,18,'#5b3a1a')+d('M203 92q26-18 38-4q-16 18-38 4z','#3a9d3a'),
+    e:[
+      ['과일 이름','사과'],
+      ['무슨 색?','빨[간강]|붉|빨개|레드'],
+      ['어디 위에?','접시|그릇|쟁반'],
+      ['배경(바닥)','탁자|테이블|식탁|나무|책상|바닥']
+    ]
+  },
+  // 2단계: 맑은 날 집과 나무 (요소 4개, 통과 60% -> 3개 이상 맞추면 통과)
+  {
+    need:60,
+    svg:()=>r(0,0,400,260,'#8fd3ff')+c(330,50,28,'#ffd23f')+e(70,50,34,14,'#fff')+e(100,58,30,12,'#fff')+r(0,190,400,70,'#5cb85c')+r(110,130,110,70,'#f4e3c1')+p('100,130 165,80 230,130','#c0392b')+r(150,160,28,40,'#8d5524')+r(190,145,22,22,'#8fd3ff')+r(292,130,16,70,'#7b4a1e')+c(300,105,40,'#2e8b57'),
+    e:[
+      ['건물','집|주택|지붕'],
+      ['식물','나무'],
+      ['하늘의 것','태양|햇님|햇빛|구름|하늘|파란|푸른','해'],
+      ['땅','잔디|풀|초원|들판|마당|초록']
+    ]
+  },
+  // 3단계: 밤하늘 달을 보는 고양이 (요소 5개, 통과 70% -> 4개 이상 맞추면 통과)
+  {
+    need:70,
+    svg:()=>r(0,0,400,260,'#14213d')+stars(20,200)+c(300,75,30,'#fdf1b8')+d('M60 30h280v190h-280z','none','#8d6e63',10)+r(40,218,320,18,'#8d6e63')+e(165,190,42,30,'#2b2b2b')+c(215,150,24,'#2b2b2b')+p('197,135 200,112 213,128','#2b2b2b')+p('218,128 232,112 237,137','#2b2b2b')+c(222,148,4,'#ffd23f')+d('M125 200q-35 5-30-30','none','#2b2b2b',9),
+    e:[
+      ['동물','고양이|냥이|야옹이'],
+      ['무슨 색?','검[은정]|까만|까맣|어두'],
+      ['어디에 있나요?','창|유리|방'],
+      ['무엇을 보나요?','달|별'],
+      ['언제인가요?','밤|저녁|어두|깜깜']
+    ]
+  },
+  // 4단계: 눈 오는 날 눈사람과 친구들 (요소 5개, 통과 70% -> 4개 이상 맞추면 통과)
+  {
+    need:70,
+    svg:()=>r(0,0,400,260,'#b9d4ea')+r(0,185,400,75,'#e4eef7')+dots(30,180)+r(290,125,80,65,'#b5651d')+p('280,125 330,82 380,125','#fff')+r(305,150,18,18,'#ffd23f')+r(340,155,16,35,'#6b3e1e')+c(130,188,34,'#fff')+c(130,142,24,'#fff')+c(130,106,17,'#fff')+r(118,78,24,16,'#222')+r(110,92,40,4,'#222')+r(115,121,30,7,'#d62828')+p('130,106 150,110 130,113','#f77f00')+c(124,102,2,'#000')+c(136,102,2,'#000')+c(215,160,11,'#f2c29b')+r(205,171,20,30,'#e76f51',4)+r(207,200,6,14,'#333')+r(217,200,6,14,'#333')+c(252,165,11,'#f2c29b')+d('M241 162q11-18 22 0z','#e63946')+r(242,176,20,28,'#457b9d',4)+r(244,204,6,12,'#333')+r(254,204,6,12,'#333'),
+    e:[
+      ['주인공','눈사람'],
+      ['날씨·계절','눈이|눈을|눈송이|함박눈|내리|쌓인|겨울'],
+      ['누가 같이 있나요?','아이|어린이|소년|소녀|친구|사람'],
+      ['눈사람 옷차림','목도리|머플러|스카프|모자'],
+      ['뒤에 있는 건물','집|마을|지붕']
+    ]
+  },
+  // 5단계: 밤하늘 아래 캠핑과 모닥불 (요소 6개, 통과 75% -> 5개 이상 맞추면 통과)
+  {
+    need:75,
+    svg:()=>r(0,0,400,260,'#0b1d3a')+stars(30,110)+c(60,45,16,'#fdf1b8')+p('0,200 90,105 180,200','#1f3a5f')+p('140,200 260,90 400,200','#27476e')+r(0,190,400,70,'#1b4332')+pine(35,215)+pine(375,208)+pine(345,230)+p('140,215 195,150 250,215','#e76f51')+p('195,150 180,215 210,215','#7a2e1d')+c(300,205,42,'rgba(255,159,28,.25)')+p('288,222 300,188 312,222','#ffb703')+p('294,222 300,202 306,222','#ff5400')+r(284,222,32,5,'#5d4037')+c(262,198,9,'#f2c29b')+r(254,207,16,18,'#4361ee',4)+c(340,200,9,'#f2c29b')+r(332,209,16,18,'#f72585',4),
+    e:[
+      ['숙소','텐트|천막'],
+      ['따뜻한 것','모닥불|캠프파이어|불꽃|불을|불이|장작'],
+      ['자연 풍경','나무|소나무|숲|산'],
+      ['밤하늘','별|달|밤하늘'],
+      ['누가 있나요?','사람|두 ?명|친구|캠핑|아이|가족'],
+      ['언제인가요?','밤|저녁|어두|깜깜']
+    ]
+  }
+];
+
+let lv=0,t0=0,tk,lt,st=[],done=false;
+const TOTAL_LV=L.length;
+
+// 시간 포맷 (MM:SS)
+const fmt=ms=>{const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+// 화면 전환
+const show=n=>['s0','s1','s2'].forEach((k,i)=>$(k).hidden=i!=n);
+// 정규식 및 단어 포함 여부 확인
+const hit=(t,x)=>(x[1]&&new RegExp(x[1]).test(t))||(x[2]||'').split(',').filter(Boolean).some(w=>W(w).test(t));
+
+// 게임 시작
+function start(){
+  st=L.map(()=>({tries:0,best:0,ms:0}));
+  lv=0;
+  t0=Date.now();
+  clearInterval(tk);
+  $('sw').textContent='00:00';
+  tk=setInterval(()=>$('sw').textContent=fmt(Date.now()-t0),250);
+  show(1);
+  load();
+}
+
+// 현재 단계 불러오기
+function load(){
+  const l=L[lv];
+  lt=Date.now();
+  done=false;
+  $('lv').textContent=`${lv+1} / ${TOTAL_LV} 단계`;
+  $('need').textContent=l.need+'%';
+  $('img').innerHTML=`<svg viewBox="0 0 400 260" role="img" aria-label="맞춰야 할 그림">${l.svg()}</svg>`;
+  $('chips').innerHTML=l.e.map(x=>`<span class="chip">${x[0]}</span>`).join('');
+  $('in').value='';
+  $('in').disabled=false;
+  $('go').disabled=false;
+  $('nx').hidden=true;
+  $('bar').hidden=true;
+  $('msg').textContent='';
+  $('msg').className='msg';
+  $('in').focus();
+}
+
+// 문장 채점하기
+function check(){
+  const l=L[lv],t=$('in').value.trim();
+  if(t.length<4){
+    $('msg').className='msg n';
+    $('msg').textContent='조금 더 길게 한 문장으로 적어 볼까요? 😊';
+    return;
+  }
+  const res=l.e.map(x=>hit(t,x));
+  const n=res.filter(Boolean).length;
+  const sc=Math.round(n/l.e.length*100);
+  const s=st[lv];
+  s.tries++;
+  s.best=Math.max(s.best,sc);
+
+  // 힌트 칩 색상 업데이트
+  $('chips').innerHTML=l.e.map((x,i)=>`<span class="chip ${res[i]?'y':'n'}">${res[i]?'⭕':'❌'} ${x[0]}</span>`).join('');
+  
+  // 점수 막대 표시
+  $('bar').hidden=false;
+  $('fill').style.width=sc+'%';
+  $('mark').style.left=`calc(${l.need}% - 2px)`;
+
+  const m=$('msg');
+  if(sc>=l.need){
+    done=true;
+    s.ms=Date.now()-lt;
+    m.className='msg y';
+    m.textContent=`와우! 일치율 ${sc}%로 통과했어요! (${l.e.length}개 중 ${n}개 성공)`;
+    $('in').disabled=true;
+    $('go').disabled=true;
+    $('nx').textContent=lv===TOTAL_LV-1?'결과 확인하기 🏆':'다음 단계로 👉';
+    $('nx').hidden=false;
+    $('nx').focus();
+  }else{
+    m.className='msg n';
+    m.textContent=`일치율 ${sc}%예요. 목표(${l.need}%)까지 조금만 더! ❌ 표시된 힌트를 문장에 추가해 보세요.`;
+  }
+}
+
+// 다음 단계 또는 결과 화면 이동
+function next(){
+  if(lv<TOTAL_LV-1){
+    lv++;
+    load();
+    return;
+  }
+  clearInterval(tk);
+  const tot=Date.now()-t0;
+  const avg=Math.round(st.reduce((a,b)=>a+b.best,0)/TOTAL_LV);
+  const tr=st.reduce((a,b)=>a+b.tries,0);
+  $('tot').textContent=fmt(tot);
+  
+  let badge='끝까지 해낸 멋진 도전자! 👏';
+  if(tr<=6) badge='한 번에 척척! 프롬프트 천재! 👑';
+  else if(tr<=10) badge='정말 잘했어요! 프롬프트 박사! 🌟';
+
+  $('sum').textContent=`평균 점수 ${avg}% · 총 채점 ${tr}번 — ${badge}`;
+  $('tb').innerHTML='<tr><th>단계</th><th>목표</th><th>내 최고점</th><th>시도 횟수</th><th>걸린 시간</th></tr>'+
+    st.map((s,i)=>`<tr><td>${i+1}단계</td><td>${L[i].need}%</td><td><b>${s.best}%</b></td><td>${s.tries}번</td><td>${fmt(s.ms)}</td></tr>`).join('');
+  show(2);
+}
+
+$('b0').onclick=start;
+$('re').onclick=start;
+$('go').onclick=check;
+$('nx').onclick=next;
+$('in').addEventListener('keydown',ev=>{
+  if(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey)&&!done) check();
+});
+</script>
+</body>
+</html>
